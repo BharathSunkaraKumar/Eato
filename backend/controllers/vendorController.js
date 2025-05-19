@@ -54,4 +54,30 @@ const vendorLogin = async(req, res) => {
     }
 }
 
-module.exports = {vendorRegister, vendorLogin};
+const getAllVendors = async(req, res) => {
+    try{
+        const vendors = await Vendor.find().populate('firm');
+        res.json({vendors})
+    }catch(err) {
+        if(err) console.log(err)
+        res.status(500).json({err: "Internal server error"});
+    }
+}
+
+const getVendorById = async(req, res) => {
+    const vendorId = req.params.id;
+    try{
+        const vendor = await Vendor.findById(vendorId).populate('firm');
+        if(!vendor) {
+            return res.status(404).json({error: "vendor not found"});
+        }
+        res.status(200).json({vendor})
+    }catch(err){
+        if(err) {
+            console.log(err)
+            res.status(500).json({err: "Internal server error"});
+        }
+    }
+}
+
+module.exports = {vendorRegister, vendorLogin, getAllVendors, getVendorById};

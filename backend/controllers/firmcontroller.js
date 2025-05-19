@@ -8,7 +8,7 @@ const storage = multer.diskStorage({
         cb(null, 'uploads/');
     },
     filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
+        cb(null, Date.now() + '-' + path.extname(file.originalname));
     }
 });
 
@@ -20,7 +20,8 @@ const addFirm = async(req, res) => {
 
         const image = req.file ? req.file.filename : undefined;
 
-        const vendor = await Vendor.findById(req.vedorId);
+        const vendor = await Vendor.findById(req.vendorId);
+
         if(!vendor) {
             res.status(404).json({message: "vendor not found"});
         }
@@ -28,7 +29,10 @@ const addFirm = async(req, res) => {
             firmName, area, category, region, offer, image, vendor: vendor._id
         })
 
-        await firm.save();
+        const saveFirm = await firm.save();
+        vendor.firm.push(saveFirm)
+        await vendor.save()
+
         return res.status(200).json({message: 'Firm added successfully'});
     }catch(err) {
         console.log(err);
